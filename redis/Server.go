@@ -43,7 +43,7 @@ func NewServer(ip string, port int) *Server {
 	tp.conn = conn
 	tp.clients = make(map[int]*client_t)
 
-	log.Info("redis server listen on tcp %s:%d", ip, port)
+	log.Info("redis server listen on tcp://%s:%d", ip, port)
 	tp.start()
 	return tp
 }

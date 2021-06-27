@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"fmt"
 	"bytes"
 	"strconv"
 )
@@ -112,7 +111,7 @@ func (r *Response)SetNull() {
 
 func (r *Response)SetInt(num int64) {
 	r.type_ = TypeInt
-	r.vals = []string{fmt.Sprintf("%d", num)}
+	r.vals = []string{strconv.FormatInt(num, 10)}
 }
 
 func (r *Response)SetString(b string) {
@@ -146,7 +145,7 @@ func (r *Response)Encode() string {
 	case TypeOK:
 		buf.WriteString("+OK\r\n");
 	case TypeError:
-		buf.WriteString("-");
+		buf.WriteByte('-');
 		buf.WriteString(r.vals[0]);
 		buf.WriteString(" ");
 		buf.WriteString(r.vals[1]);
@@ -154,22 +153,22 @@ func (r *Response)Encode() string {
 	case TypeNull:
 		buf.WriteString("$-1\r\n");
 	case TypeInt:
-		buf.WriteString(":");
+		buf.WriteByte(':');
 		buf.WriteString(r.vals[0]);
 		buf.WriteString("\r\n");
 	case TypeString:
-		buf.WriteString("$");
-		buf.WriteString(fmt.Sprintf("%d", len(r.vals[0])));
+		buf.WriteByte('$');
+		buf.WriteString(strconv.Itoa(len(r.vals[0])));
 		buf.WriteString("\r\n");
 		buf.WriteString(r.vals[0]);
 		buf.WriteString("\r\n");
 	case TypeArray:
-		buf.WriteString("*");
-		buf.WriteString(fmt.Sprintf("%d", len(r.vals)));
+		buf.WriteByte('*');
+		buf.WriteString(strconv.Itoa(len(r.vals)));
 		buf.WriteString("\r\n");
 		for _, s := range r.vals {
-			buf.WriteString("$");
-			buf.WriteString(fmt.Sprintf("%d", len(s)));
+			buf.WriteByte('$');
+			buf.WriteString(strconv.Itoa(len(s)));
 			buf.WriteString("\r\n");
 			buf.WriteString(s);
 			buf.WriteString("\r\n");

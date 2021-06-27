@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -16,7 +15,7 @@ func Atoi32(s string) int32{
 }
 
 func I32toa(u int32) string{
-	return fmt.Sprintf("%d", u)
+	return strconv.FormatInt(int64(u), 10)
 }
 
 func Atoi64(s string) int64{
@@ -25,7 +24,7 @@ func Atoi64(s string) int64{
 }
 
 func I64toa(u int64) string{
-	return fmt.Sprintf("%d", u)
+	return strconv.FormatInt(int64(u), 10)
 }
 
 func Atou32(s string) uint32{

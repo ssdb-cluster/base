@@ -85,7 +85,7 @@ func (obj *Object)Array() []*Object {
 func (obj *Object)Keys() (arr []string) {
 	for i, sub := range obj.subs {
 		if obj.type_ == OBJ_ARRAY {
-			arr = append(arr, fmt.Sprintf("%d", i))
+			arr = append(arr, strconv.Itoa(i))
 		} else {
 			arr = append(arr, sub.key)
 		}
