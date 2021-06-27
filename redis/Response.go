@@ -143,7 +143,7 @@ func (r *Response)Encode() string {
 	var buf bytes.Buffer
 	switch r.type_ {
 	case TypeOK:
-		buf.WriteString("+OK\r\n");
+		return "+OK\r\n";
 	case TypeError:
 		buf.WriteByte('-');
 		buf.WriteString(r.vals[0]);
@@ -151,7 +151,7 @@ func (r *Response)Encode() string {
 		buf.WriteString(r.vals[1]);
 		buf.WriteString("\r\n");
 	case TypeNull:
-		buf.WriteString("$-1\r\n");
+		return "$-1\r\n";
 	case TypeInt:
 		buf.WriteByte(':');
 		buf.WriteString(r.vals[0]);

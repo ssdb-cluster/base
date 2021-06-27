@@ -4,7 +4,6 @@ import (
 	"os"
 	"fmt"
 	"bufio"
-	"base/util"
 )
 
 var WalWriterBufferSize int = 4 * 1024 * 1024
@@ -76,18 +75,16 @@ func (wal *WalWriter)Truncate(size int64) error {
 }
 
 func (wal *WalWriter)Write(bs []byte) (nn int64, err error) {
-	bs = escape_crlf(bs)
-	sum := util.Crc32(bs)
-
-	var len int
+	buf := encode(bs)
+	var size int
 	if wal.writer != nil {
-		len, err = fmt.Fprintf(wal.writer, "%08x %s\n", sum, bs)
+		size, err = wal.writer.Write(buf)
 	} else {
-		len, err = fmt.Fprintf(wal.fp, "%08x %s\n", sum, bs)
+		size, err = wal.fp.Write(buf)
 	}
-	wal.size += int64(len)
 
-	return int64(len), err
+	wal.size += int64(size)
+	return int64(size), err
 }
 
 func (wal *WalWriter)Fsync() error {
