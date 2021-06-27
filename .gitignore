@@ -11,5 +11,5 @@ tmp
 *.dSYM*
 log.txt
 .vscode
-src/test/cover.html
 tmp.*
+
