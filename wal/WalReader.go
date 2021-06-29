@@ -71,6 +71,26 @@ func (wal *WalReader)Fseek(pos int64) {
 	wal.fpos = pos
 }
 
+func (wal *WalReader)First() ([]byte, error) {
+	wal.Fseek(0)
+	return wal.Next()
+}
+
+func (wal *WalReader)Last() ([]byte, error) {
+	wal.Fseek(0)
+	var ret []byte
+	for {
+		bs, err := wal.Next()
+		if err != nil {
+			return nil, err
+		}
+		if bs == nil {
+			break
+		}
+		ret = bs
+	}
+	return ret, nil
+}
 // read exactly next record, place read position at just after the record
 func (wal *WalReader)Next() ([]byte, error) {
 	bs, err := wal.reader.ReadBytes('\n')

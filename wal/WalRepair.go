@@ -1,22 +1,23 @@
 package wal
 
 import (
-	// "os"
+	"os"
 )
 
 func RepairWalFile(path string) error {
-	// wal := NewWalReader(path)
-	// defer wal.Close()
+	r := NewWalReader(path)
+	defer r.Close()
 
-	// pos := wal.Position()
-	// for wal.Next() {
-	// 	_, err := wal.Item()
-	// 	if err != nil {
-	// 		os.Truncate(path, pos)
-	// 		break
-	// 	}
-	// 	pos = wal.Position()
-	// }
+	for {
+		pos := r.Position()
+		_, err := r.Next()
+		if err != nil {
+			if err := os.Truncate(path, pos); err != nil {
+				panic(err)
+			}
+			break
+		}
+	}
 
 	return nil
 }
