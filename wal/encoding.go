@@ -7,8 +7,6 @@ import (
 	"base/util"
 )
 
-var err_decode = errors.New("wal corruption")
-
 // 转义 \r\n
 func escape_crlf(bs []byte, buf *bytes.Buffer) {
 	var s int = 0
@@ -58,7 +56,7 @@ func encode(bs []byte) []byte {
 	} else if len(bs) < 800 {
 		buf = bytes.NewBuffer(make([]byte, 8, 1024))
 	} else {
-		nn := len(bs) + len(bs) / 16
+		nn := len(bs) + len(bs) / 8
 		buf = bytes.NewBuffer(make([]byte, 8, nn))
 	}
 

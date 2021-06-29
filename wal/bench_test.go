@@ -157,26 +157,9 @@ func Benchmark_hex_custom2(b *testing.B) {
 	}
 }
 
-func Benchmark_hex_custom2_var_int(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		var nn int = 256
-		buf := bytes.NewBuffer(make([]byte, 0, nn))
-		n := uint32(rand.Int31())
-
-		x := Hex32(n)
-		buf.Write(x[:])
-
-		buf.WriteByte(' ')
-		buf.WriteString(src)
-		buf.WriteByte('\n')
-		s := buf.Bytes()
-		_ = s
-	}
-}
-
 func Benchmark_hex_custom3(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		buf := bytes.NewBuffer(make([]byte, 0, 512))
+		buf := bytes.NewBuffer(make([]byte, 0, len(src) + len(src)/8))
 		n := uint32(rand.Int31())
 
 		x := Hex32(n)

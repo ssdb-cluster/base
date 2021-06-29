@@ -98,7 +98,7 @@ func (wal *WalReader)Next() ([]byte, error) {
 	if err != nil {
 		if err == io.EOF {
 			if len(bs) > 0 {
-				return nil, err_decode
+				return nil, errors.New("wal corruption")
 			}
 			return nil, nil
 		}
