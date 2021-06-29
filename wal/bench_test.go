@@ -143,7 +143,7 @@ func Benchmark_hex_custom(b *testing.B) {
 
 func Benchmark_hex_custom2(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		buf := bytes.NewBuffer(make([]byte, 0, 256))
+		buf := bytes.NewBuffer(make([]byte, 0, 512))
 		n := uint32(rand.Int31())
 
 		x := Hex32(n)

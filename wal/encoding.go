@@ -51,10 +51,10 @@ func encode(bs []byte) []byte {
 	// 根据 benchmark, 这样做可以优化:
 	// * make 传常量大小
 	// * 减少 if 分支数量
-	if len(bs) < 40 {
-		buf = bytes.NewBuffer(make([]byte, 8, 64))
-	} else if len(bs) < 200 {
+	if len(bs) < 200 {
 		buf = bytes.NewBuffer(make([]byte, 8, 256))
+	} else if len(bs) < 400 {
+		buf = bytes.NewBuffer(make([]byte, 8, 512))
 	} else if len(bs) < 800 {
 		buf = bytes.NewBuffer(make([]byte, 8, 1024))
 	} else {
