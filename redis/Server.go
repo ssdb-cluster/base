@@ -21,6 +21,7 @@ type Server struct {
 	lastClientId int
 	conn *net.TCPListener
 	clients map[int]*client_t
+	resp_c chan *Response
 }
 
 type client_t struct {
@@ -38,10 +39,22 @@ func NewServer(ip string, port int) *Server {
 	}
 
 	tp := new(Server)
-	tp.C = make(chan *Request, 100)
+	tp.C = make(chan *Request, 1024)
 	tp.lastClientId = 0
 	tp.conn = conn
 	tp.clients = make(map[int]*client_t)
+	tp.resp_c = make(chan *Response, 1024)
+
+	// TODO: create goroutine for each connection?
+	go func() {
+		for {
+			resp := <- tp.resp_c
+			if resp == nil {
+				break
+			}
+			tp.doSend(resp)
+		}
+	}()
 
 	log.Info("redis server listen on tcp://%s:%d", ip, port)
 	tp.start()
@@ -56,6 +69,7 @@ func (tp *Server)Close(){
 	tp.Unlock()
 	tp.conn.Close()
 	close(tp.C)
+	close(tp.resp_c)
 	log.Info("redis server closed")
 }
 
@@ -67,11 +81,12 @@ func (tp *Server)start() {
 			conn, err := tp.conn.AcceptTCP()
 			if err != nil {
 				if !strings.Contains(err.Error(), "use of closed network connection") {
-					log.Errorln(err)
+					log.Error("%v", err)
 				}
 				return
 			}
 			conn.SetNoDelay(true)
+			conn.SetWriteBuffer(1024 * 1024)
 
 			client := new(client_t)
 			client.id = tp.lastClientId
@@ -98,7 +113,7 @@ func (tp *Server)receiveClient(client *client_t) {
 	var buf bytes.Buffer
 	var msg *Request
 	msg = new(Request)
-	tmp := make([]byte, 32*1024)
+	tmp := make([]byte, 64*1024)
 
 	for {
 		for {
@@ -136,7 +151,10 @@ func (tp *Server)receiveClient(client *client_t) {
 			if strings.Contains(err.Error(), "use of closed network connection") {
 				return
 			}
-			log.Errorln(err)
+			if strings.Contains(err.Error(), "connection reset by peer") {
+				return
+			}
+			log.Error("%v", err)
 			return
 		}
 		buf.Write(tmp[0:n])
@@ -144,6 +162,10 @@ func (tp *Server)receiveClient(client *client_t) {
 }
 
 func (tp *Server)Send(resp *Response) {
+	tp.resp_c <- resp
+}
+
+func (tp *Server)doSend(resp *Response) {
 	tp.Lock()
 	defer tp.Unlock()
 
@@ -162,6 +184,5 @@ func (tp *Server)Send(resp *Response) {
 	}
 
 	log.Trace("   send > %d %s\n", dst, util.StringEscape(data))
-	// TODO: may block
 	client.conn.Write([]byte(data))
 }

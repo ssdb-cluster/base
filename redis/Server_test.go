@@ -1,18 +1,22 @@
 package redis
 
 import (
+	"base/log"
 	"testing"
-	"fmt"
 )
 
 func TestServer(t *testing.T){
+	log.SetLevel("debug")
+
 	rport := NewServer("127.0.0.1", 9000)
 	defer rport.Close()
 
 	for {
 		select {
-		case msg := <- rport.C:
-			fmt.Println(msg.Array())
+		case req := <- rport.C:
+			resp := new(Response)
+			resp.Dst = req.Src
+			rport.Send(resp)
 		}
 	}
 }
