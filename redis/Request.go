@@ -80,7 +80,7 @@ func (m *Request)EncodeSSDB() string {
 }
 
 func (m *Request)EncodeRedis() string {
-	var buf bytes.Buffer
+	buf := bytes.NewBuffer(make([]byte, 0, 1 * 1024))
 	count := len(m.vals)
 	buf.WriteString("*")
 	buf.WriteString(strconv.Itoa(count))

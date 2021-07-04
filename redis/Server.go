@@ -110,10 +110,9 @@ func (tp *Server)receiveClient(client *client_t) {
 		client.conn.Close()
 	}()
 
-	var buf bytes.Buffer
-	var msg *Request
-	msg = new(Request)
+	msg := new(Request)
 	tmp := make([]byte, 64*1024)
+	buf := bytes.NewBuffer(make([]byte, 0, 128 * 1024))
 
 	for {
 		for {
@@ -124,11 +123,6 @@ func (tp *Server)receiveClient(client *client_t) {
 					recv = recv[0 : 128]
 				}
 				log.Warn("%v parse error: %q", client.conn.RemoteAddr(), recv)
-
-				resp := new(Response)
-				resp.Dst = client.id
-				resp.SetError("parse error")
-				client.conn.Write([]byte(resp.Encode()))
 				return
 			} else if (n == 0){
 				break

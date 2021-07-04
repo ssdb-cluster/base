@@ -7,17 +7,17 @@ import (
 
 // TODO: return []byte
 func EncodeSSDB(arr []string) string {
-	var buf bytes.Buffer
 	if len(arr) == 0 {
-		buf.WriteString("0\n\n")
+		return "0\n\n\n"
 	}
+	buf := bytes.NewBuffer(make([]byte, 0, 1 * 1024))
 	for _, p := range arr {
 		buf.WriteString(strconv.Itoa(len(p)))
-		buf.WriteString("\n")
+		buf.WriteByte('\n')
 		buf.WriteString(p)
-		buf.WriteString("\n")
+		buf.WriteByte('\n')
 	}
-	buf.WriteString("\n")
+	buf.WriteByte('\n')
 	return buf.String()
 }
 

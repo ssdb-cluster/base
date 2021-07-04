@@ -140,7 +140,7 @@ func (r *Response)EncodeSSDB() string {
 }
 
 func (r *Response)Encode() string {
-	var buf bytes.Buffer
+	buf := bytes.NewBuffer(make([]byte, 0, 1 * 1024))
 	switch r.type_ {
 	case TypeOK:
 		return "+OK\r\n";
