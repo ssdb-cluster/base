@@ -1,6 +1,7 @@
-package util
+package lang
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -18,9 +19,34 @@ func IsNull(a interface{}) bool {
 	return false
 }
 
+func IsInt(a interface{}) bool {
+	v := reflect.ValueOf(a)
+	switch v.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		 reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		 return true
+	}
+	return false
+}
+
+func IsFloat(a interface{}) bool {
+	v := reflect.ValueOf(a)
+	switch v.Kind() {
+	case reflect.Float32, reflect.Float64:
+		 return true
+	}
+	return false
+}
+
 func IsEqual(a, b interface{}) bool {
 	if IsNull(a) && IsNull(b) {
 		return true
+	}
+	if IsInt(a) && IsInt(b) {
+		return fmt.Sprintf("%v", a) == fmt.Sprintf("%v", b)
+	}
+	if IsFloat(a) && IsFloat(b) {
+		return fmt.Sprintf("%v", a) == fmt.Sprintf("%v", b)
 	}
 
 	v1 := reflect.ValueOf(a)
@@ -35,6 +61,5 @@ func IsEqual(a, b interface{}) bool {
 			return true
 		}
 	}
-
 	return reflect.DeepEqual(a, b)
 }
