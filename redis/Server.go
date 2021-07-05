@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"strings"
 	"base/log"
-	"base/util"
 )
 
 /*
@@ -127,7 +126,7 @@ func (tp *Server)receiveClient(client *client_t) {
 			} else if (n == 0){
 				break
 			}
-			log.Trace("receive < %d %s", client.id, util.StringEscape(string(tmp[0:n])))
+			log.Trace("receive < %d %s", client.id, string(tmp[0:n]))
 			buf.Next(n)
 
 			msg.Src = client.id
@@ -177,7 +176,7 @@ func (tp *Server)doSend(resp *Response) {
 		data = resp.EncodeSSDB()
 	}
 
-	log.Trace("   send > %d %s\n", dst, util.StringEscape(data))
+	log.Trace("   send > %d %s\n", dst, data)
 	bs := []byte(data)
 	for len(bs) > 0 {
 		nn, err := client.conn.Write(bs)
