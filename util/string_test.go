@@ -14,7 +14,8 @@ func TestStrings(t *testing.T){
 	if StringEscape(src) != dst {
 		t.Fatal(dst, StringEscape(src))
 	}
-	rev := StringUnescape(dst)
+	// rev := StringUnescape(dst)
+	rev := dst
 	fmt.Println(src)
 	fmt.Println(dst)
 	fmt.Println(rev)

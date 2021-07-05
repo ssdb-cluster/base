@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+	// "fmt"
 	"strings"
 	"bytes"
 )
@@ -14,18 +14,37 @@ func ReplaceBytes(s string, src []string, dst []string) string {
 }
 
 // 仅用于调试
-func StringEscape(s string) string {
-	s = fmt.Sprintf("%q", s)
-	return s[1:len(s)-1]
-	// return string(BytesEscape([]byte(s)))
-}
-
-// 仅用于调试
-func StringUnescape(s string) string {
-	var ret string
-	fmt.Sscanf("\"" + s + "\"", "%q", &ret)
-	return ret
-	// return string(BytesUnescape([]byte(s)))
+func StringEscape(bs string) string {
+	var buf bytes.Buffer
+	var s int = 0
+	var e int = -1
+	var c byte
+	for e = 0; e < len(bs); e ++ {
+		c = bs[e]
+		var d string
+		switch c {
+		case '\\':
+			d = "\\\\"
+		case '\t':
+			d = "\\t"
+		case '\r':
+			d = "\\r"
+		case '\n':
+			d = "\\n"
+		default:
+			continue
+		}
+		buf.WriteString(bs[s : e])
+		buf.WriteString(d)
+		s = e + 1
+	}
+	if s == 0 && e == len(bs) {
+		return bs // no copy
+	}
+	if s < e {
+		buf.WriteString(bs[s : e])
+	}
+	return buf.String()
 }
 
 // See strconv.Quote() https://golang.org/src/strconv/quote.go?s=4976:5005

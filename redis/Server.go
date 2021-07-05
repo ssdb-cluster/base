@@ -178,5 +178,15 @@ func (tp *Server)doSend(resp *Response) {
 	}
 
 	log.Trace("   send > %d %s\n", dst, util.StringEscape(data))
-	client.conn.Write([]byte(data))
+	bs := []byte(data)
+	for len(bs) > 0 {
+		nn, err := client.conn.Write(bs)
+		if err != nil {
+			log.Error("%v", err)
+			delete(tp.clients, dst)
+			client.conn.Close()
+			return
+		}
+		bs = bs[nn : ]
+	}
 }

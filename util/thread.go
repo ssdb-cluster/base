@@ -23,7 +23,7 @@ func StartWorkerThread(task_c chan bool, f func()) Thread {
 }
 
 // call Stop() to stop the thread
-func StartTickerThread(tick_ms int, f func()) Thread {
+func StartTickerThread(tick_ms int, f func()) *TickerThread {
 	w := new(TickerThread)
 	w.tick_ms = tick_ms
 	w.work_f = f
