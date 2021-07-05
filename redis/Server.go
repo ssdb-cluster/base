@@ -176,7 +176,7 @@ func (tp *Server)doSend(resp *Response) {
 		data = resp.EncodeSSDB()
 	}
 
-	log.Trace("   send > %d %s\n", dst, data)
+	log.Trace("   send > %d %s", dst, data)
 	bs := []byte(data)
 	for len(bs) > 0 {
 		nn, err := client.conn.Write(bs)

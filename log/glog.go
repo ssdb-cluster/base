@@ -682,6 +682,46 @@ func (l *loggingT) printWithFileLine(s severity, file string, line int, alsoToSt
 	l.output(s, buf, file, line, alsoToStderr)
 }
 
+func escape(data []byte) []byte {
+	var e int
+	for {
+		if e = bytes.Index(data, []byte{'\r'}); e > 0 {
+			break
+		}
+		if e = bytes.Index(data, []byte{'\n'}); e > 0 && e != len(data)-1 {
+			break
+		}
+		return data
+	}
+
+	var buf *bytes.Buffer
+	if len(data) < 100 {
+		buf = bytes.NewBuffer(make([]byte, 0, 128))
+	} else if len(data) < 200 {
+		buf = bytes.NewBuffer(make([]byte, 0, 256))
+	} else {
+		buf = bytes.NewBuffer(make([]byte, 0, len(data) * 2))
+	}
+	var s int = 0
+	for /**/; e < len(data) - 1; e ++ {
+		c := data[e]
+		var d string
+		switch c {
+		case '\r':
+			d = "\\r"
+		case '\n':
+			d = "\\n"
+		default:
+			continue
+		}
+		buf.Write(data[s : e])
+		buf.WriteString(d)
+		s = e + 1
+	}
+	buf.Write(data[s : e + 1])
+	return buf.Bytes()
+}
+
 // output writes the data to the log files and releases the buffer.
 func (l *loggingT) output(s severity, buf *buffer, file string, line int, alsoToStderr bool) {
 	l.mu.Lock()
@@ -693,34 +733,7 @@ func (l *loggingT) output(s severity, buf *buffer, file string, line int, alsoTo
 	data := buf.Bytes()
 
 	// escape
-	if e := bytes.Index(data, []byte{'\n'}); e > 0 && e != len(data)-1 {
-		var buf *bytes.Buffer
-		if len(data) < 100 {
-			buf = bytes.NewBuffer(make([]byte, 0, 128))
-		} else if len(data) < 200 {
-			buf = bytes.NewBuffer(make([]byte, 0, 256))
-		} else {
-			buf = bytes.NewBuffer(make([]byte, 0, len(data) * 2))
-		}
-		var s int = 0
-		for /**/; e < len(data) - 1; e ++ {
-			c := data[e]
-			var d string
-			switch c {
-			case '\r':
-				d = "\\r"
-			case '\n':
-				d = "\\n"
-			default:
-				continue
-			}
-			buf.Write(data[s : e])
-			buf.WriteString(d)
-			s = e + 1
-		}
-		buf.Write(data[s : e + 1])
-		data = buf.Bytes()
-	}
+	data = escape(data)
 
 	/*if !flag.Parsed() {
 		os.Stdout.Write([]byte("ERROR: logging before flag.Parse: "))
