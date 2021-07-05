@@ -658,9 +658,7 @@ func (l *loggingT) print(s severity, args ...interface{}) {
 func (l *loggingT) printDepth(s severity, depth int, args ...interface{}) {
 	buf, file, line := l.header(s, depth)
 	fmt.Fprint(buf, args...)
-	if buf.Bytes()[buf.Len()-1] != '\n' {
-		buf.WriteByte('\n')
-	}
+	buf.WriteByte('\n')
 	l.output(s, buf, file, line, false)
 }
 
@@ -670,9 +668,7 @@ func (l *loggingT) printf(s severity, format string, args ...interface{}) {
 	}
 	buf, file, line := l.header(s, 0)
 	fmt.Fprintf(buf, format, args...)
-	if buf.Bytes()[buf.Len()-1] != '\n' {
-		buf.WriteByte('\n')
-	}
+	buf.WriteByte('\n')
 	l.output(s, buf, file, line, false)
 }
 
@@ -682,9 +678,7 @@ func (l *loggingT) printf(s severity, format string, args ...interface{}) {
 func (l *loggingT) printWithFileLine(s severity, file string, line int, alsoToStderr bool, args ...interface{}) {
 	buf := l.formatHeader(s, file, line)
 	fmt.Fprint(buf, args...)
-	if buf.Bytes()[buf.Len()-1] != '\n' {
-		buf.WriteByte('\n')
-	}
+	buf.WriteByte('\n')
 	l.output(s, buf, file, line, alsoToStderr)
 }
 
@@ -697,6 +691,37 @@ func (l *loggingT) output(s severity, buf *buffer, file string, line int, alsoTo
 		}
 	}
 	data := buf.Bytes()
+
+	// escape
+	if e := bytes.Index(data, []byte{'\n'}); e > 0 && e != len(data)-1 {
+		var buf *bytes.Buffer
+		if len(data) < 100 {
+			buf = bytes.NewBuffer(make([]byte, 0, 128))
+		} else if len(data) < 200 {
+			buf = bytes.NewBuffer(make([]byte, 0, 256))
+		} else {
+			buf = bytes.NewBuffer(make([]byte, 0, len(data) * 2))
+		}
+		var s int = 0
+		for /**/; e < len(data) - 1; e ++ {
+			c := data[e]
+			var d string
+			switch c {
+			case '\r':
+				d = "\\r"
+			case '\n':
+				d = "\\n"
+			default:
+				continue
+			}
+			buf.Write(data[s : e])
+			buf.WriteString(d)
+			s = e + 1
+		}
+		buf.Write(data[s : e + 1])
+		data = buf.Bytes()
+	}
+
 	/*if !flag.Parsed() {
 		os.Stdout.Write([]byte("ERROR: logging before flag.Parse: "))
 		os.Stdout.Write(data)
