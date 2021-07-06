@@ -101,5 +101,5 @@ func (w *TickerThread)start() {
 
 func (w *TickerThread)Stop() {
 	w.ticker.Stop()
-	w.stop_c <- false
+	w.stop_c <- false // block
 }

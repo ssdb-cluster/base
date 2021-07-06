@@ -13,7 +13,7 @@ func TestServer(t *testing.T){
 
 	for {
 		select {
-		case req := <- rport.C:
+		case req := <- rport.C():
 			resp := new(Response)
 			resp.Dst = req.Src
 			rport.Send(resp)

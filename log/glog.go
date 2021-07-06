@@ -685,10 +685,10 @@ func (l *loggingT) printWithFileLine(s severity, file string, line int, alsoToSt
 func escape(data []byte) []byte {
 	var e int
 	for {
-		if e = bytes.Index(data, []byte{'\r'}); e > 0 {
+		if e = bytes.IndexByte(data, '\r'); e > 0 {
 			break
 		}
-		if e = bytes.Index(data, []byte{'\n'}); e > 0 && e != len(data)-1 {
+		if e = bytes.IndexByte(data, '\n'); e > 0 && e != len(data)-1 {
 			break
 		}
 		return data

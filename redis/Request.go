@@ -121,7 +121,7 @@ func (msg *Request)Decode(bs []byte) int {
 			end -= 1
 		}
 
-		msg.vals = util.ParseCommandLine(string(bs[s:end]))
+		msg.vals = util.ParseCommandLine(string(bs[s:s+end]))
 		msg.IsRedis = true
 	}
 
