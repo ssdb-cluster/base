@@ -31,7 +31,7 @@ func (parser *Parser)parse() (ret *Object, err error) {
 		}
 		ret = NewString(str)
 	} else {
-		return nil, errors.New(fmt.Sprintf("unexpected token: '%c'", token))
+		return nil, fmt.Errorf("unexpected token: '%c'", token)
 	}
 	return ret, nil
 }
@@ -97,7 +97,7 @@ func (parser *Parser)parse_object(obj *Object) error {
 				parser.tn.NextToken()
 			}
 		} else {
-			return errors.New(fmt.Sprintf("unexpected token parsing object: '%c'", next))
+			return fmt.Errorf("unexpected token parsing object: '%c'", next)
 		}
 	}
 }

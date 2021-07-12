@@ -121,7 +121,7 @@ func (wal *WalReader)ReadAt(pos int64) ([]byte, error) {
 		// ReadAt() uses pread(), thread safe
 		n, err := wal.fp.ReadAt(tmp, start)
 		if n == 0 {
-			return nil, errors.New(fmt.Sprintf("read at pos: %d, %v", start, err))
+			return nil, fmt.Errorf("read at pos: %d, %v", start, err)
 		}
 		p := bytes.IndexByte(tmp[0:n], '\n')
 		if p != -1 {
@@ -138,7 +138,7 @@ func (wal *WalReader)ReadAt(pos int64) ([]byte, error) {
 
 	ret, err := decode(bs)
 	if err != nil {
-		return bs, errors.New(fmt.Sprintf("wal record decode error at pos: %d, %v", pos, err))
+		return bs, fmt.Errorf("wal record decode error at pos: %d, %v", pos, err)
 	}
 	return ret, nil
 }

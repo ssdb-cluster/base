@@ -1,7 +1,6 @@
 package redis
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"bytes"
@@ -47,7 +46,7 @@ func (cli *Client)Do(args ...string) (*Response, error) {
 			if len(recv) > 128 {
 				recv = recv[0 : 128]
 			}
-			err := errors.New(fmt.Sprintf("parse error: %q", recv))
+			err := fmt.Errorf("parse error: %q", recv)
 			return nil, err
 		} else if n == 0 {
 			n, err := cli.conn.Read(tmp)

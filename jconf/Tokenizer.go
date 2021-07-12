@@ -68,7 +68,7 @@ Loop:
 			case 'n':
 				ret.WriteByte('\n')
 			default: // \f, \uxxxx, \x
-				return "", errors.New(fmt.Sprintf("error character '%c' after \\", n))
+				return "", fmt.Errorf("error character '%c' after \\", n)
 			}
 		case '"':
 			break Loop
