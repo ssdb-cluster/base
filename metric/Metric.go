@@ -1,3 +1,4 @@
+// Copyright 2021 The SSDB-cluster Authors
 package metric
 
 import (
