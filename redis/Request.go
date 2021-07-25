@@ -3,6 +3,7 @@ package redis
 
 import (
 	"log"
+	"fmt"
 	"bytes"
 	"strings"
 	"strconv"
@@ -27,6 +28,10 @@ func DecodeRequest(s string) *Request {
 	ret := new(Request)
 	ret.Decode([]byte(s))
 	return ret
+}
+
+func (m *Request)String() string {
+	return fmt.Sprintf("%v", m.vals)
 }
 
 func (m *Request)Array() []string {
