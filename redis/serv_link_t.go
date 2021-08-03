@@ -9,6 +9,9 @@ import (
 	"base/log"
 )
 
+// 如果客户端不是请求响应模式, 而是 pipeline 模式, 可能会遇到这样的情况:
+// 第1个请求正确地发往 raft, 第2个请求时 raft 返回 not_leader 错误. 这样的话, 第2个响应会先返回, 从而出错.
+// 所以, 通过 recv_wait_c 保证前一个请求的响应发送之后, 才能接收下一个请求
 type serv_link_t struct {
 	sync.Mutex
 	closed bool
@@ -20,6 +23,7 @@ type serv_link_t struct {
 	recv_tmp []byte
 	recv_buf bytes.Buffer
 	resp_c chan *Response
+	recv_wait_c chan bool
 }
 
 func new_serv_link(id int, conn *net.TCPConn) *serv_link_t {
@@ -29,7 +33,14 @@ func new_serv_link(id int, conn *net.TCPConn) *serv_link_t {
 	client.id = id
 	client.conn = conn
 	client.resp_c = make(chan *Response, 1024)
+	client.recv_wait_c = make(chan bool)
 	client.recv_tmp = make([]byte, 128*1024)
+
+	// 让 recv 能开始执行第一次
+	go func() {
+		client.recv_wait_c <- true
+	}()
+
 	return client
 }
 
@@ -44,6 +55,7 @@ func (l *serv_link_t)close() {
 
 	l.conn.Close()
 	close(l.resp_c)
+	close(l.recv_wait_c)
 }
 
 func (client *serv_link_t)send(resp *Response) error {
@@ -64,12 +76,17 @@ func (client *serv_link_t)send(resp *Response) error {
 		bs = bs[nn : ]
 	}
 
+	client.recv_wait_c <- true
 	return nil
 }
 
 func (client *serv_link_t)recv() (*Request, error) {
-	msg := new(Request)
+	w := <- client.recv_wait_c
+	if w == false {
+		return nil, nil
+	}
 
+	msg := new(Request)
 	for {
 		for client.recv_buf.Len() > 0 {
 			n := msg.Decode(client.recv_buf.Bytes())

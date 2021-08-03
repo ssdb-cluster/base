@@ -9,12 +9,6 @@ import (
 	"base/log"
 )
 
-/*
-TODO:
-如果客户端不是请求响应模式, 而是 pipeline 模式, 可能会遇到这样的情况:
-第1个请求正确地发往 raft, 第2个请求时 raft 返回 not_leader 错误.
-这样的话, 第2个响应会先返回, 从而出错.
-*/
 type Server struct {
 	sync.Mutex
 	wait sync.WaitGroup
@@ -116,7 +110,7 @@ func (tp *Server)send_thread(client *serv_link_t) {
 			if !util.IsEOF(err) {
 				log.Error("send error: %v", err)
 			}
-			return
+			break
 		}
 	}
 }
